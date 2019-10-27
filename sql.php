@@ -9,6 +9,7 @@ $sql = array(
 		)
 	),
 	"read_by_address"	=> "SELECT value FROM data WHERE var = ? AND address = ? ORDER BY time DESC LIMIT 1",
-	"read_by_label"		=> "SELECT var, address, value FROM data WHERE label = ? ORDER BY time DESC LIMIT 1"
+	"read_by_label"		=> "SELECT var, address, type, value FROM data WHERE label = ? ORDER BY time DESC LIMIT 1",
+	"write"				=> "INSERT INTO writes(var, address, type, value) VALUES (?, ?, ?, ?)"
 );
 ?>

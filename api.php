@@ -13,6 +13,7 @@ switch($action)
 		action_read();
 		break;
 	case "write":
+		action_write();
 		break;
 	case "query":
 		action_query();
@@ -44,13 +45,20 @@ function action_read()
 		doc("action_read");
 }
 
+
+///
+/// Wypisz wartość zmiennej po nazwie etykiety
+///
 function echo_by_label($label) {
-	$value = read_by_label($label);
-	echo json_encode(array("value" => $value));
+	$data = read_by_label($label);
+	echo json_encode(array("value" => $data["value"]));
 }
 
 ///
-/// Czytaj wartość zmiennej po nazwie etykiety
+/// Czytaj zmienną po nazwie etykiety
+/// Funkcja zwraca tablicę asocjacyjną zawierającą pola
+/// Rodzaj,	Adres,		Typ,	Wartość
+/// var,	address,	type,	value
 ///
 function read_by_label($label)
 {
@@ -61,15 +69,12 @@ function read_by_label($label)
 	$stmt = $mysqli -> prepare($sql["read_by_label"]);
 	$stmt -> bind_param("s", $label);
 	$stmt -> execute();
-	$stmt -> store_result();
-	$stmt -> bind_result($var, $address, $value);
-	$stmt -> fetch();
-	$stmt -> free_result();
+	$result = $stmt -> get_result();
+	$data = $result -> fetch_assoc();
 	$mysqli -> close();
 	
-	return $value;
+	return $data;
 }
-
 
 ///
 /// Wypisz wartość zmiennej po jej adresie
@@ -82,6 +87,7 @@ function echo_by_address($type, $address)
 
 ///
 /// Czytaj wartość zmiennej po jej adresie
+/// Funkcja zwraca tylko wartość zmiennej
 ///
 function read_by_address($var, $address)
 {
@@ -100,6 +106,91 @@ function read_by_address($var, $address)
 	$mysqli -> close();
 	
 	return $value;
+}
+
+function action_write()
+{
+	$var = "";
+	$address = "";
+	$label = "";
+	$type = "";
+	$value = 0;
+		
+	if(!empty($_GET["var"]))
+		$var = $_GET["var"];
+	
+	if(!empty($_GET["address"]))
+		$address = $_GET["address"];
+	
+	if(!empty($_GET["label"]))
+		$label = $_GET["label"];
+	
+	if(!empty($_GET["type"]))
+		$type = $_GET["type"];
+	
+	if(empty($_GET["value"]))
+		doc("action_write");
+	
+	$value = $_GET["value"];
+
+	if($label && !($var || $address))
+		write_by_label($label, $value);
+	else if($var && $address && !$label)
+		write_by_address($var, $address, $type, $value);
+	else
+		doc("action_write");
+}
+
+///
+/// Zapisz nową wartość zmiennej po jej adresie
+///
+function write_by_address($var, $address, $type, $value)
+{
+	if(!in_array($var, array("Q", "R")))
+		doc("action_write");
+	
+	if($address < 0 || $address > 65535)
+		doc("action_write");
+		
+	if(!in_array($type, array("BOOL", "INT", "DINT", "LINT", "UINT", "UDINT", "ULINT", "REAL", "LREAL")))
+		doc("action_write");
+	
+	if($var == "R" && $type == "BOOL")
+		doc("action_write");
+	
+	if($var == "Q" && $type != "BOOL")
+		doc("action_write");
+	
+	if(!is_numeric($value))
+		doc("action_write");
+	
+	global $sql;
+	
+	$db = db_connect();
+	$stmt = $db -> prepare($sql["write"]);
+	$stmt -> bind_param("sisd", $var, $address, $type, $value);
+	$stmt -> execute();
+	$result = $stmt -> affected_rows;
+	
+	switch($result)
+	{
+		case -1:
+		case 0:
+			$result = "error";
+			break;
+		default:
+			$result = "ok";
+	}
+	echo json_encode(array("result" => $result));
+}
+
+///
+/// Zapisz nową wartość zmiennej po nazwie etykiety
+///
+function write_by_label($label, $value)
+{
+	$data = read_by_label($label);
+	write_by_address($data["var"], $data["address"], $data["type"], $value);
 }
 
 function action_query()
@@ -174,19 +265,4 @@ function query_vars()
 	$stmt -> free_result();
 	$mysqli -> close();
 }
-
-/*
-//Read
-$_GET["label"]
-$_GET["type"]
-$_GET["address"]
-
-//Write
-$_GET["address"]
-$_GET["value"]
-
-//Query
-$_GET["list"]
-*/
-
 ?>
