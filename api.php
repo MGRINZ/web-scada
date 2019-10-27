@@ -1,5 +1,6 @@
 <?php
 require "db.php";
+require "doc.php";
 
 if(empty($_GET["action"]))
 	die();
@@ -24,7 +25,7 @@ function action_read()
 {
 	$label = "";
 	$address = "";
-	$type = "";
+	$var = "";
 	
 	if(!empty($_GET["label"]))
 		$label = $_GET["label"];
@@ -32,15 +33,20 @@ function action_read()
 	if(!empty($_GET["address"]))
 		$address = $_GET["address"];
 	
-	if(!empty($_GET["type"]))
-		$type = $_GET["type"];
+	if(!empty($_GET["var"]))
+		$var = $_GET["var"];
 	
-	if($label && !($type || $address))
-		read_by_label($label);
-	else if($type && $address && !$label)
-		read_by_address($type, $address);
+	if($label && !($var || $address))
+		echo_by_label($label);
+	else if($var && $address && !$label)
+		echo_by_address($var, $address);
 	else
-		die();
+		doc("action_read");
+}
+
+function echo_by_label($label) {
+	$value = read_by_label($label);
+	echo json_encode(array("value" => $value));
 }
 
 ///
@@ -48,45 +54,58 @@ function action_read()
 ///
 function read_by_label($label)
 {
+	global $sql;
+	
 	$mysqli = db_connect();
 	
-	$stmt = $mysqli -> prepare("SELECT value FROM data WHERE label = ? ORDER BY time DESC LIMIT 1");
+	$stmt = $mysqli -> prepare($sql["read_by_label"]);
 	$stmt -> bind_param("s", $label);
 	$stmt -> execute();
 	$stmt -> store_result();
-	$stmt -> bind_result($value);
+	$stmt -> bind_result($var, $address, $value);
 	$stmt -> fetch();
-	
-	echo json_encode(array("value" => $value));
-	
 	$stmt -> free_result();
 	$mysqli -> close();
+	
+	return $value;
+}
+
+
+///
+/// Wypisz wartość zmiennej po jej adresie
+///
+function echo_by_address($type, $address)
+{
+	$value = read_by_address($type, $address);
+	echo json_encode(array("value" => $value));
 }
 
 ///
 /// Czytaj wartość zmiennej po jej adresie
 ///
-function read_by_address($type, $address)
+function read_by_address($var, $address)
 {
+	global $sql;
+	
 	$mysqli = db_connect();
 	
-	$stmt = $mysqli -> prepare("SELECT value FROM data WHERE type = ? AND address = ? ORDER BY time DESC LIMIT 1");
-	$stmt -> bind_param("si", $type, $address);
+	$stmt = $mysqli -> prepare($sql["read_by_address"]);
+	$stmt -> bind_param("si", $var, $address);
+
 	$stmt -> execute();
 	$stmt -> store_result();
 	$stmt -> bind_result($value);
 	$stmt -> fetch();
-	
-	echo json_encode(array("value" => $value));
-	
 	$stmt -> free_result();
 	$mysqli -> close();
+	
+	return $value;
 }
 
 function action_query()
 {
 	if(empty($_GET["list"]))
-		die();
+		doc("action_query");
 	
 	$list = $_GET["list"];
 	
@@ -103,20 +122,49 @@ function action_query()
 ///
 function query_vars()
 {
+	global $sql;
+	
+	$variable = "";
+	$order = "var";
+	
+	if(!empty($_GET["order"]))
+	{
+		$order = $_GET["order"];
+		if(!($order == "var" || $order == "label"))
+			doc("action_query");
+	}
+	
+	if(!empty($_GET["variable"]))
+	{
+		$variable = $_GET["variable"];
+		if(!in_array($variable, array("I", "Q", "R", "AI")))
+			doc("action_query");
+	}
+	
 	$mysqli = db_connect();
 	
-	$stmt = $mysqli -> prepare("SELECT DISTINCT type, address, label FROM data ORDER BY time DESC");
+	$sql_stmt = $sql["query_vars"]["select"];
+	if($variable)
+		$sql_stmt .= $sql["query_vars"]["where"];
+	$sql_stmt .= $sql["query_vars"]["order"][$order];
+	
+	$stmt = $mysqli -> prepare($sql_stmt);
+	
+	if($variable)
+		$stmt -> bind_param("s", $variable);
+	
 	$stmt -> execute();
 	$stmt -> store_result();
-	$stmt -> bind_result($type, $address, $label);
+	$stmt -> bind_result($var, $address, $type, $label);
 	
 	$result = array();
 	
 	while($stmt -> fetch())
 	{
 		array_push($result, array(
-			"type"		=> $type,
+			"var"		=> $var,
 			"address"	=> $address,
+			"type"		=> $type,
 			"label"		=> $label
 		));
 	}

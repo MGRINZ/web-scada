@@ -1,0 +1,66 @@
+<h2>action=read</h2>
+<p>Reads variable value from database</p>
+
+<h3>Parameters</h3>
+<table border="1">
+	<tr>
+		<td>label</td>
+		<td>string</td>
+		<td>
+			<p>Read variable value by its label. Cannot be used with <var>var</var> and <var>address</var>.</p>
+			<p>Acceptable values: any string</p>
+		</td>
+	</tr>
+	<tr>
+		<td>var</td>
+		<td>string</td>
+		<td>
+			<p>Read variable value by its address. Must be used with <var>address</var>. Cannot be used with <var>label</var>.</p>
+			<p>Acceptable values: <em>I</em>, <em>Q</em>, <em>R</em>, <em>AI</em></p>
+		</td>
+	</tr>
+	<tr>
+		<td>address</td>
+		<td>int</td>
+		<td>
+			<p>Read variable value by its address. Must be used with <var>var</var>. Cannot be used with <var>label</var>.</p>
+			<p>Acceptable values: integer value in range [0, 65535]</p>
+		</td>
+	</tr>
+</table>
+
+<h3>Return</h3>
+<table border="1">
+	<tr>
+		<td>value</td>
+		<td>double</td>
+		<td>
+			<p>Value of variable</p>
+		</td>
+	</tr>
+</table>
+<pre>
+{
+  "value": "double"
+}
+</pre>
+
+<h3>Examples</h3>
+<p>Read variable called "labeled_var"</p>
+<pre>
+/api.php?action=read&label=labeled_var
+</pre>
+<pre>
+{
+  "value": 10
+}
+</pre>
+<p>Read variable %R1</p>
+<pre>
+/api.php?action=read&var=R&address=1
+</pre>
+<pre>
+{
+  "value": 10
+}
+</pre>
