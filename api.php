@@ -31,15 +31,15 @@ function action_read()
 	if(!empty($_GET["label"]))
 		$label = $_GET["label"];
 	
-	if(!empty($_GET["address"]))
+	if(isset($_GET["address"]))
 		$address = $_GET["address"];
 	
 	if(!empty($_GET["var"]))
 		$var = $_GET["var"];
 	
-	if($label && !($var || $address))
+	if($label && !($var || isset($address)))
 		echo_by_label($label);
-	else if($var && $address && !$label)
+	else if($var && isset($address) && !$label)
 		echo_by_address($var, $address);
 	else
 		doc("action_read");
@@ -119,7 +119,7 @@ function action_write()
 	if(!empty($_GET["var"]))
 		$var = $_GET["var"];
 	
-	if(!empty($_GET["address"]))
+	if(isset($_GET["address"]))
 		$address = $_GET["address"];
 	
 	if(!empty($_GET["label"]))
@@ -128,14 +128,14 @@ function action_write()
 	if(!empty($_GET["type"]))
 		$type = $_GET["type"];
 	
-	if(empty($_GET["value"]))
+	if(!isset($_GET["value"]))
 		doc("action_write");
 	
 	$value = $_GET["value"];
 
-	if($label && !($var || $address))
+	if($label && !($var || isset($address)))
 		write_by_label($label, $value);
-	else if($var && $address && !$label)
+	else if($var && isset($address) && !$label)
 		write_by_address($var, $address, $type, $value);
 	else
 		doc("action_write");
@@ -147,6 +147,9 @@ function action_write()
 function write_by_address($var, $address, $type, $value)
 {
 	if(!in_array($var, array("Q", "R")))
+		doc("action_write");
+	
+	if(!is_numeric($address))
 		doc("action_write");
 	
 	if($address < 0 || $address > 65535)
