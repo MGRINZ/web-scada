@@ -2,7 +2,9 @@
 	position: absolute;
 }
 
-.control svg {
+.control svg,
+.control input
+ {
 	width: inherit;
 	height: inherit;
 }

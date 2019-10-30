@@ -261,11 +261,24 @@ class Text extends Control {
 	}
 	
 	updateStyle() {
+		super.updateStyle();
 		this._wrapper.text(this._style.text);
 	}
 	
 	onUpdateIndication() {
-		var text = this._wrapper.text();
+		var text = this.parseText(this._style.text);
+		if(text)
+			this._wrapper.text(text);
+	}
+	
+	/**
+	 * Parsowanie tekstu
+	 * Metoda parsuje tekst w poszukiwaniu znaczników liczb (#) i zamienia je na wartość zmiennej.
+	 *
+	 * @param	text	tekst do sparsowania: String
+	 * @return 			sparsowany tekst lub null, jeśli nie odnaleziono znaczników #: @Nullable String
+	 */
+	parseText(text) {
 		var regexp = /#+\.?#*/;
 		var matches = regexp.exec(text);
 		
@@ -273,7 +286,7 @@ class Text extends Control {
 			var match = matches[0];
 			var splittedMatch = match.split(".");
 			
-			var intPart = Math.floor(this._value);
+			var intPart = (this._value > 0) ? Math.floor(this._value) : Math.ceil(this._value);
 			var intPartStr = "" + intPart;
 			
 			var zeros = splittedMatch[0].length - intPartStr.length;
@@ -289,14 +302,56 @@ class Text extends Control {
 				
 				var fractionPart = this._value * places;
 				fractionPart -= intPart * places;
-				fractionPart = Math.floor(fractionPart);
+				fractionPart = Math.abs(Math.floor(fractionPart));
 				
 				var fractionPartStr = "" + fractionPart;
 				
 				text = text.replace(splittedMatch[1], fractionPartStr);
 			}
 			
-			this._wrapper.text(text);
+			return text;
 		}
+		
+		return null;
+	}
+}
+
+class TextBox extends Text {
+	constructor(variable, address) {
+		super(variable, address);
+		this._style.format = this._style.text;
+		delete this._style.text;
+	}
+	
+	updateStyle() {
+		super.updateStyle();
+		
+		var self = this;
+		var input = $('<input type"text" />')
+			.val(this._style.format)
+			.focus(function () {
+				self._focused = true;
+			})
+			.keydown(function (event) {
+				if(event.keyCode == 13)
+					$(this).blur();
+			})
+			.blur(function (event) {				
+				var value = parseFloat($(this).val());
+				if(value != self._value)
+					self.write(value);
+				
+				self._focused = false;
+			});
+		this._wrapper.html(input);
+	}
+	
+	onUpdateIndication() {
+		if(this._focused)
+			return;
+		
+		var text = this.parseText(this._style.format);
+		if(text)
+			this._wrapper.find("input").val(text);
 	}
 }
