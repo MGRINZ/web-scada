@@ -1,0 +1,8 @@
+.control {
+	position: absolute;
+}
+
+.control svg {
+	width: inherit;
+	height: inherit;
+}
