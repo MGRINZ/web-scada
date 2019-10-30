@@ -72,6 +72,15 @@ class Control {
 	}
 	
 	/**
+	 * Pobranie stylu kontrolki
+	 *
+	 * @return	styl kontrolki: Object
+	 */
+	get style() {
+		return this._style;
+	}
+	
+	/**
 	 * Dodanie kontrolki do DOM
 	 *
 	 * @param	_id		nadany identyfikator kontrolki: Number
@@ -242,5 +251,52 @@ class Switch extends Control {
 				duration: 100
 			}
 		)
+	}
+}
+
+class Text extends Control {
+	constructor(variable, address) {
+		super(variable, address);
+		this._style.text = "";
+	}
+	
+	updateStyle() {
+		this._wrapper.text(this._style.text);
+	}
+	
+	onUpdateIndication() {
+		var text = this._wrapper.text();
+		var regexp = /#+\.?#*/;
+		var matches = regexp.exec(text);
+		
+		if(matches) {
+			var match = matches[0];
+			var splittedMatch = match.split(".");
+			
+			var intPart = Math.floor(this._value);
+			var intPartStr = "" + intPart;
+			
+			var zeros = splittedMatch[0].length - intPartStr.length;
+			while(zeros > 0) {
+				intPartStr = "0" + intPartStr;
+				zeros--;
+			}
+
+			text = text.replace(splittedMatch[0], intPartStr);
+			
+			if(splittedMatch.length == 2) {
+				var places = Math.pow(10, splittedMatch[1].length);
+				
+				var fractionPart = this._value * places;
+				fractionPart -= intPart * places;
+				fractionPart = Math.floor(fractionPart);
+				
+				var fractionPartStr = "" + fractionPart;
+				
+				text = text.replace(splittedMatch[1], fractionPartStr);
+			}
+			
+			this._wrapper.text(text);
+		}
 	}
 }

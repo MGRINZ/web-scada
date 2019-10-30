@@ -5,6 +5,7 @@
 		<title></title>
 		<script src="scripts/jquery-3.4.1.min.js"></script>
 		<script src="scripts/controls.js"></script>
+		<script src="scripts/script.js"></script>
 		<link rel="stylesheet" href="css/controls.css" />
 	</head>
 	<body>
