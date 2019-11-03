@@ -1,0 +1,23 @@
+<svg width="96.386" height="215.7" version="1.1" viewBox="0 0 25.502 57.071" xmlns="http://www.w3.org/2000/svg">
+ <g class="ticks">
+  <g class="marks" fill="none" stroke="#d6d6d6" stroke-width=".13229">
+   <path d="m10.269 54.994h4.0671"/>
+   <path d="m10.676 48.379h2.1167"/>
+   <path d="m10.676 41.764h2.1167"/>
+   <path d="m10.676 35.15h2.1167"/>
+   <path d="m10.676 28.535h4.0672"/>
+   <path d="m10.676 21.919h2.1167"/>
+   <path d="m10.676 15.306h2.1167"/>
+   <path d="m10.676 8.6916h2.1167"/>
+   <path d="m10.676 2.077h4.0672"/>
+  </g>
+  <g class="labels" fill="#d6d6d6" font-family="sans-serif" font-size="10.583px" letter-spacing="0px" stroke-width=".26458" word-spacing="0px">
+   <text class="max" x="15.47161" y="3.39308" style="line-height:1.25" xml:space="preserve"><tspan x="15.47161" y="3.39308" fill="#d6d6d6" font-size="3.5278px" stroke-width=".26458">100.0</tspan></text>
+   <text class="min" x="15.47161" y="56.339176" style="line-height:1.25" xml:space="preserve"><tspan x="15.47161" y="56.339176" fill="#d6d6d6" font-size="3.5278px" stroke-width=".26458">0.0</tspan></text>
+  </g>
+ </g>
+ <g class="slider" fill="#eaeaea" stroke="#d6d6d6" stroke-width=".18521">
+  <rect class="runner" x="4.0614" y="2.077" width="1.3229" height="52.917" ry=".29106"/>
+  <rect class="handle" x=".092604" y=".092604" width="9.2604" height="3.9688" ry=".72038"/>
+ </g>
+</svg>

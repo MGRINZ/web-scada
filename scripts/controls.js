@@ -204,7 +204,7 @@ class Control {
 	/**
 	 * Zdarzenie załadowania grafiki SVG kontrolki
 	 * 
-	 * @param	svg	element DOM zawierający grafikę SVG: Object
+	 * @param	svg	obiekt jQuery elementu DOM zawierającego grafikę SVG: Object
 	 */
 	onSvgLoaded(svg) {
 		this.updateIndication();
@@ -254,6 +254,9 @@ class Switch extends Control {
 	}
 }
 
+/**
+ * Kontrolka tekstu tylko do odczytu
+ */
 class Text extends Control {
 	constructor(variable, address) {
 		super(variable, address);
@@ -316,6 +319,9 @@ class Text extends Control {
 	}
 }
 
+/**
+ * Kontrolka pola tekstowego
+ */
 class TextBox extends Text {
 	constructor(variable, address) {
 		super(variable, address);
@@ -353,5 +359,86 @@ class TextBox extends Text {
 		var text = this.parseText(this._style.format);
 		if(text)
 			this._wrapper.find("input").val(text);
+	}
+}
+
+/**
+ * Kontrolka suwaka
+ */
+class Slider extends Control {
+	constructor(variable, address) {
+		super(variable, address);
+		this._svgPath = "svg/slider.svg";
+		this._style.dimensions = {
+			width: 100,
+			height: 200
+		}
+		this._style.values = {
+			max: 100,
+			min: 0
+		}
+	}
+	
+	onSvgLoaded(svg) {
+		super.onSvgLoaded(svg);
+		var self = this;
+		svg.find(".handle").mousedown(function (event) {
+			if(event.which != 1)
+				return;
+			
+			self._grabbed = true;
+		});
+		$(document)
+			.mouseup(function (event) {
+				if(event.which != 1)
+					return;
+				
+				self._grabbed = false;
+			})
+			.mousemove(function (event) {
+				self.sliderHandleMovement(event);
+			});
+	}
+	
+	updateStyle() {
+		super.updateStyle();
+		var labels = this._wrapper.find(".labels");
+		var textMin = labels.find(".min tspan");
+		var textMax = labels.find(".max tspan");
+		
+		textMin.text(this._style.values.min);
+		textMax.text(this._style.values.max);
+	}
+	
+	onUpdateIndication() {
+		if(this._grabbed)
+			return;
+		
+		var runner = this._wrapper.find("svg .runner");
+		var handle = this._wrapper.find("svg .handle");
+		var maxY = runner.attr("height");
+		
+		var y = 0;
+		
+		if(this._value > this._style.values.max)
+			y = maxY;
+		else if(this._value < this._style.values.min)
+			y = 0;
+		else {
+			var range = this._style.values.max - this._style.values.min;
+			
+			var y = this._value * maxY / range - maxY * this._style.values.min / range;
+		}
+		
+		handle.attr("y", maxY - y);
+	}
+	
+	sliderHandleMovement(event) {
+		if(!this._grabbed)
+			return;
+		
+		var handle = this._wrapper.find(".handle");
+		console.log(handle.position().top);
+		console.log(event.offsetY);
 	}
 }

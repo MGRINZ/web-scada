@@ -14,10 +14,19 @@ $(function () {
 	controls.push(new Switch("Q", 1));
 	controls.push(new Text("R", 1));
 	controls.push(new TextBox("R", 1));
+	controls.push(new Slider("R", 1));
+	controls.push(new Slider("R", 3));
 	
 	controls[1].style.text = "Rejestr %R1: #.###";
 	controls[2].type = "REAL";
 	controls[2].style.format = "#.###";
+	controls[3].type = "REAL";
+	controls[3].style.position.left = 200;
+	controls[3].style.values = {
+		min: -100,
+		max: 100
+	}
+	controls[4].style.position.left = 400;
 	
 	for(var i = 0; i < controls.length; i++) {
 		controls[i].interval = 1000;
