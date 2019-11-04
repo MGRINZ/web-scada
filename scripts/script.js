@@ -15,7 +15,7 @@ $(function () {
 	controls.push(new Text("R", 1));
 	controls.push(new TextBox("R", 1));
 	controls.push(new Slider("R", 1));
-	controls.push(new Slider("R", 3));
+	controls.push(new Slider("R", 1));
 	
 	controls[1].style.text = "Rejestr %R1: #.###";
 	controls[2].type = "REAL";

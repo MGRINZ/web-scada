@@ -387,6 +387,10 @@ class Slider extends Control {
 				return;
 			
 			self._grabbed = true;
+			self._mouseHandleStart = event.pageY;
+			self._handleStart = parseFloat($(this).attr("y"));
+			console.log(self._mouseHandleStart);
+			console.log(self._handleStart);
 		});
 		$(document)
 			.mouseup(function (event) {
@@ -411,9 +415,6 @@ class Slider extends Control {
 	}
 	
 	onUpdateIndication() {
-		if(this._grabbed)
-			return;
-		
 		var runner = this._wrapper.find("svg .runner");
 		var handle = this._wrapper.find("svg .handle");
 		var maxY = runner.attr("height");
@@ -437,8 +438,26 @@ class Slider extends Control {
 		if(!this._grabbed)
 			return;
 		
+		var svg = this._wrapper.find("svg");
 		var handle = this._wrapper.find(".handle");
-		console.log(handle.position().top);
-		console.log(event.offsetY);
+		var runner = this._wrapper.find(".runner");
+		
+		var viewBoxY = svg.attr("viewBox").split(" ")[3]		//[1]
+		var scale = svg.height() / viewBoxY;					//[px]/[1]
+		var offset = event.pageY - this._mouseHandleStart;		//[px]
+		var dy = offset / scale;								//[1]
+		var y = this._handleStart + dy;
+		var maxY = runner.attr("height");
+		var range = this._style.values.max - this._style.values.min;
+		var value = range - y * range / maxY + this._style.values.min
+		
+		if(value > this._style.values.max)
+			value = this._style.values.max;
+		else if(value < this._style.values.min)
+			value = this._style.values.min;
+		
+		console.log(value);
+		
+		this.write(value);
 	}
 }
