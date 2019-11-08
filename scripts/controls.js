@@ -20,7 +20,7 @@ class Control {
 		this._interval = 1000;			//< Czas odświerzania w ms
 		this._wrapper = null;			//< Element DOM stanowiący korzeń kontrolki
 		this._svgPath = null;			//< Ścieżka do pliku SVG
-		this._isWritting = false		//< Zmienna określa czy zapisać nową wartość zmiennej
+		this._isWritting = false;		//< Zmienna określa czy zapisać nową wartość zmiennej
 		this._style = {					//< Styl kontrolki
 			dimensions: {
 				width: 100,
@@ -31,6 +31,8 @@ class Control {
 				left: 0
 			}
 		};
+		this._syncingWith = -1;			//< Id kontrolki, z której ta kontrolka synchronizuje wartość
+		Control._controls.push(this);	//< Dodanie kontrolki do zmiennej statycznej
 	}
 	
 	/**
@@ -49,7 +51,27 @@ class Control {
 	 */
 	set value(_value) {
 		this._value = _value + 0;	//< + 0 zamienia Boolean na Number
+
+		if(this._isWritting)
+			this.sync(_value);
+		
+		
 		this.updateIndication();
+	}
+	
+	sync(_value) {
+		var control;
+		for(var i = 0; i < Control._controls.length; i++) {
+			control = Control._controls[i];
+			
+			if(control._id == this._id)
+				continue;
+			
+			if(this._variable == control._variable && this._address == control._address) {
+				control._syncingWith = this._id;
+				control.value = _value;
+			}
+		}
 	}
 	
 	/**
@@ -110,8 +132,8 @@ class Control {
 	 * @param	_value	nowa wartość zmiennej: Number
 	 */
 	write(_value) {
-		this.value = _value;
 		this._isWritting = true;
+		this.value = _value;
 	}
 	
 	/**
@@ -125,37 +147,76 @@ class Control {
 			return;
 		
 		setTimeout(function () {self.update()}, this._interval);
+	
+		this.doWrite();
+		this.doRead();
+	}
+	
+	/**
+	 * Zapis przechowywanej w kontrolce wartości zmiennej do bazy danych
+	 */
+	doWrite() {
+		var self = this;
 		
-		if(this._isWritting) {
-			$.get({
-				url: "api.php",
-				data: {
-					"action": "write",
-					"var": this._variable,
-					"address": this._address,
-					"type": this._type,
-					"value": this._value
-				},
-				dataType: "json",
-				complete: function (data) {
-					self._isWritting = false;
-				}
-			});	
-		} else {
-			$.get({
-				url: "api.php",
-				data: {
-					"action": "read",
-					"var": this._variable,
-					"address": this._address
-				},
-				dataType: "json",
-				success: function (data) {
-					self.value = data.value;
-				}
-			});			
+		if(!this._isWritting)
+			return;
+		
+		$.get({
+			url: "api.php",
+			data: {
+				"action": "write",
+				"var": this._variable,
+				"address": this._address,
+				"type": this._type,
+				"value": this._value
+			},
+			dataType: "json",
+			complete: function (data) {
+				self._isWritting = false;
+			}
+		});	
+	}
+	
+	/**
+	 * Odczyt wartości zmiennej z bazy danych
+	 */
+	doRead() {
+		var self = this;
+		
+		if(this._isWritting)
+			return;
+		
+		if(this._syncingWith != -1) {
+			if(Control._controls[this._syncingWith]._isWritting)
+				return;
+			
+			this._syncingWith = -1;
+			return;
 		}
 		
+		$.get({
+			url: "api.php",
+			data: {
+				"action": "read",
+				"var": this._variable,
+				"address": this._address
+			},
+			dataType: "json",
+			success: function (data) {
+				if(self._isWritting)
+					return;
+
+				if(self._syncingWith != -1) {
+					if(Control._controls[self._syncingWith]._isWritting)
+						return;
+					
+					self._syncingWith = -1;
+					return;
+				}
+				
+				self.value = data.value;
+			}
+		});		
 	}
 	
 	/**
@@ -211,6 +272,11 @@ class Control {
 		this.updateStyle();
 	};
 }
+
+/**
+ * Statyczna tablica zawierająca referencje do wszystkich kontrolek
+ */
+Control._controls = [];
 
 /**
  * Kontrolka przełącznika
@@ -389,8 +455,6 @@ class Slider extends Control {
 			self._grabbed = true;
 			self._mouseHandleStart = event.pageY;
 			self._handleStart = parseFloat($(this).attr("y"));
-			console.log(self._mouseHandleStart);
-			console.log(self._handleStart);
 		});
 		$(document)
 			.mouseup(function (event) {
@@ -455,8 +519,6 @@ class Slider extends Control {
 			value = this._style.values.max;
 		else if(value < this._style.values.min)
 			value = this._style.values.min;
-		
-		console.log(value);
 		
 		this.write(value);
 	}
