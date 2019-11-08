@@ -523,3 +523,51 @@ class Slider extends Control {
 		this.write(value);
 	}
 }
+
+/**
+ * Kontrolka wskaźnika analogowego
+ */
+class Meter extends Control {
+	constructor(variable, address) {
+		super(variable, address);
+		this._svgPath = "svg/meter.svg";
+		this._style.dimensions = {
+			width: 220,
+			height: 120
+		}
+		this._style.values = {
+			max: 10,
+			min: 0
+		}
+	}
+	
+	updateStyle() {
+		super.updateStyle();
+		var self = this;
+		var labels = this._wrapper.find(".labels text tspan");
+		
+		var range = this._style.values.max - this._style.values.min;
+		labels.each(function (i) {
+			$(this).text(i * range / 10 + self._style.values.min);
+		});
+	}
+	
+	onUpdateIndication() {
+		var hand = this._wrapper.find(".hand");
+		var transform = hand.attr("transform");
+		transform = transform.split(/\(|\)| /);
+		
+		if(this._value > this._style.values.max)
+			transform[1] = 150;
+		else if(this._value < this._style.values.min)
+			transform[1] = 0;
+		else {
+			var range = this._style.values.max - this._style.values.min;
+			
+			transform[1] = this._value * 150 / range - 150 * this._style.values.min / range;
+		}
+		
+		transform = transform[0] + "(" + transform.slice(1, 4).join(" ") + ")";
+		hand.attr("transform", transform);
+	}
+}

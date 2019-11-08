@@ -1,0 +1,48 @@
+<svg width="230.24" height="136.35" preserveAspectRatio="none" version="1.1" viewBox="0 0 460.48 272.69" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <g transform="translate(-134.47 -86.987)">
+  <g class="ticks">
+   <g class="labels" fill="#000000" font-family="sans-serif" font-size="16px" letter-spacing="0px" text-anchor="middle" word-spacing="0px">
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="55" xlink:href="#circle1766"><tspan dy="-15">0</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="110" xlink:href="#circle1766"><tspan dy="-15">1</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="165" xlink:href="#circle1766"><tspan dy="-15">2</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="220" xlink:href="#circle1766"><tspan dy="-15">3</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="275" xlink:href="#circle1766"><tspan dy="-15">4</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="50%" xlink:href="#circle1766"><tspan dy="-15">5</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="385" xlink:href="#circle1766"><tspan dy="-15">6</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="440" xlink:href="#circle1766"><tspan dy="-15">7</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="495" xlink:href="#circle1766"><tspan dy="-15">8</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="550" xlink:href="#circle1766"><tspan dy="-15">9</tspan></textPath></text>
+    <text text-align="center" style="line-height:1.25" xml:space="preserve"><textPath startOffset="605" xlink:href="#circle1766"><tspan dy="-15">10</tspan></textPath></text>
+   </g>
+   <g class="secondary" fill="none" stroke="#000" stroke-width="1px">
+    <path d="m335.88 110.71 1.3036 9.9022"/>
+    <path d="m561.84 241.11-9.2301 3.8232"/>
+    <path d="m281.82 125.12 3.8242 9.2324"/>
+    <path d="m533.9 192.63-7.9294 6.0844"/>
+    <path d="m233.35 153.06 6.0844 7.9293"/>
+    <path d="m494.26 153.16-6.0801 7.9238"/>
+    <path d="m193.88 192.7 7.9238 6.0802"/>
+    <path d="m445.9 125.02-3.8249 9.2341"/>
+    <path d="m165.73 241.06 9.2364 3.8259"/>
+    <path d="m391.81 110.68-1.3039 9.9044"/>
+   </g>
+   <g class="primary" fill="none" stroke="#000" stroke-width="2">
+    <path d="m363.84 103.12v15.5l-1e-5 5"/>
+    <path d="m576.34 266.18-0.0879 0.0236m5e-5 -5e-5 -19.793 5.3034"/>
+    <path d="m306.9 110.62 0.0231 0.086m-4e-5 4e-5 1.4234 5.3121 3.8806 14.483"/>
+    <path d="m554.37 213.12-0.23791 0.13736-17.731 10.237"/>
+    <path d="m253.84 132.59 0.13736 0.23791 10.237 17.731"/>
+    <path d="m519.4 167.56-0.0977 0.0977m4e-5 -4e-5 -14.486 14.486"/>
+    <path d="m208.28 167.56 0.0977 0.0977m-4e-5 -4e-5 14.486 14.486"/>
+    <path d="m473.84 132.59-10.34 17.91"/>
+    <path d="m173.31 213.12 0.17203 0.0993m0 2e-5 17.736 10.24"/>
+    <path d="m420.78 110.62-0.067 0.24986m5e-5 0-5.2999 19.78"/>
+    <path d="m151.34 266.18 0.24985 0.067m0-5e-5 19.78 5.2999"/>
+   </g>
+   <path class="ticks_base" d="m161.48 268.9a209.5 209.5 0 0 1 202.36-155.28 209.5 209.5 0 0 1 202.36 155.28" fill="none" stroke="#000" stroke-width="2"/>
+  </g>
+  <path id="circle1766" class="labels_path" d="m154.34 323.12a209.5 209.5 0 0 1 209.5-209.5 209.5 209.5 0 0 1 209.5 209.5" display="none" fill="none" stroke="#000" stroke-width="2"/>
+  <path class="hand" transform="rotate(1 363.84 323.12)" d="m363.84 323.12-202.12-54.159" fill="none" stroke="#f00" stroke-width="1.5"/>
+  <circle class="hand_base" cx="363.84" cy="323.12" r="36.558"/>
+ </g>
+</svg>
