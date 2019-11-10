@@ -12,16 +12,16 @@ class Control {
 	 * @param	address		adres zmiennej: @Nullable Number
 	 */
 	constructor(variable, address) {
-		this._id = -1;					//< Identyfikator kontrolki
-		this._variable = variable;		//< Rodzaj zmiennej
-		this._address = address;		//< Adres zmiennej
-		this._type = "INT";				//< Adres zmiennej
-		this._value = 0;				//< Wartość zmiennej
-		this._interval = 1000;			//< Czas odświerzania w ms
-		this._wrapper = null;			//< Element DOM stanowiący korzeń kontrolki
-		this._svgPath = null;			//< Ścieżka do pliku SVG
-		this._isWritting = false;		//< Zmienna określa czy zapisać nową wartość zmiennej
-		this._style = {					//< Styl kontrolki
+		this._id = Control._controls.length;	//< Identyfikator kontrolki
+		this._variable = variable;				//< Rodzaj zmiennej
+		this._address = address;				//< Adres zmiennej
+		this._type = "INT";						//< Adres zmiennej
+		this._value = 0;						//< Wartość zmiennej
+		this._interval = 1000;					//< Czas odświerzania w ms
+		this._wrapper = null;					//< Element DOM stanowiący korzeń kontrolki
+		this._svgPath = null;					//< Ścieżka do pliku SVG
+		this._isWritting = false;				//< Zmienna określa czy zapisać nową wartość zmiennej
+		this._style = {							//< Styl kontrolki
 			dimensions: {
 				width: 100,
 				height: 100
@@ -31,8 +31,8 @@ class Control {
 				left: 0
 			}
 		};
-		this._syncingWith = -1;			//< Id kontrolki, z której ta kontrolka synchronizuje wartość
-		Control._controls.push(this);	//< Dodanie kontrolki do zmiennej statycznej
+		this._syncingWith = -1;					//< Id kontrolki, z której ta kontrolka synchronizuje wartość
+		Control._controls.push(this);			//< Dodanie kontrolki do zmiennej statycznej
 	}
 	
 	/**
@@ -108,15 +108,10 @@ class Control {
 	 * @param	_id		nadany identyfikator kontrolki: Number
 	 * @param	parent	element DOM, do którego dodać kontrolkę: Object
 	 */
-	draw(_id, parent) {
-		if(this._id != -1)
-			return;
-		
-		this._id = _id;
-
+	draw(parent) {
 		this._wrapper = $("<div></div>")
 			.addClass("control")
-			.attr("data-id", _id);
+			.attr("data-id", this._id);
 		
 		if(this._svgPath)
 			this.setSvg();		//< Styl kontrolki zostanie normalnie uaktualniony w onSvgLoaded(),
@@ -183,14 +178,19 @@ class Control {
 	doRead() {
 		var self = this;
 		
-		if(this._isWritting)
+		if(this._isWritting) {
+			this.updateIndication();
 			return;
+		}
 		
 		if(this._syncingWith != -1) {
-			if(Control._controls[this._syncingWith]._isWritting)
+			if(Control._controls[this._syncingWith]._isWritting) {
+				this.updateIndication();
 				return;
+			}
 			
 			this._syncingWith = -1;
+			this.updateIndication();
 			return;
 		}
 		
@@ -203,14 +203,19 @@ class Control {
 			},
 			dataType: "json",
 			success: function (data) {
-				if(self._isWritting)
+				if(self._isWritting){
+					self.updateIndication();
 					return;
+				}
 
 				if(self._syncingWith != -1) {
-					if(Control._controls[self._syncingWith]._isWritting)
+					if(Control._controls[self._syncingWith]._isWritting) {
+						self.updateIndication();
 						return;
+					}
 					
 					self._syncingWith = -1;
+					self.updateIndication();
 					return;
 				}
 				
@@ -554,6 +559,10 @@ class Meter extends Control {
 	
 	onUpdateIndication() {
 		var hand = this._wrapper.find(".hand");
+		
+		if(!hand.length)
+			return;
+		
 		var transform = hand.attr("transform");
 		transform = transform.split(/\(|\)| /);
 		
@@ -569,5 +578,215 @@ class Meter extends Control {
 		
 		transform = transform[0] + "(" + transform.slice(1, 4).join(" ") + ")";
 		hand.attr("transform", transform);
+	}
+}
+
+/**
+ * Kontrolka obszaru wykresu
+ *
+ * Wyświetla tylko obszar wykresu bez właściwych wykresów
+ */
+class Chart extends Control {
+	constructor(variable, address) {
+		super(variable, address);
+		this._trends = [];
+		this._svgPath = "svg/chart.svg";
+		this._startTimestamp = -1;
+		this._xAxisStart = 0;
+		this._style.dimensions = {
+			width: 500,
+			height: 500
+		}
+		this._style.values = {
+			max: 100,
+			min: 0
+		}
+		this._style.timeSpan = 60;	//[s]
+	}
+	
+	updateStyle() {
+		super.updateStyle();
+		var self = this;
+		
+		var yAxis = this._wrapper.find(".y-axis");
+		var textMin = yAxis.find(".min tspan");
+		var textMax = yAxis.find(".max tspan");
+		var textMiddle = yAxis.find(".middle tspan");
+		
+		textMin.text(this._style.values.min);
+		textMax.text(this._style.values.max);
+		textMiddle.text((this._style.values.max + this._style.values.min) / 2);
+		
+		for(var i = 0; i < this._trends.length; i++)
+			this._trends[i].updateStyle();
+	}
+	
+	addTrend(_trend) {
+		this._trends.push(_trend);
+		_trend.chart = this;
+	}
+	
+	draw(parent) {
+		super.draw(parent);
+		for(var i = 0; i < this._trends.length; i++)
+			this._trends[i].draw(parent);
+	}
+	
+	onSvgLoaded(svg) {
+		super.onSvgLoaded(svg);
+		this._gridYStart = 100;
+		this._xAxisStart = parseFloat(svg.find(".x-axis text").eq(0).attr("x"));
+	}
+	
+	update() {
+		super.update();
+		for(var i = 0; i < this._trends.length; i++)
+			this._trends[i].update();
+	}
+	
+	onChartUpdated(trend, timestamp) {
+		var self = this;
+		var xAxis = this._wrapper.find(".x-axis");
+		
+		if(!xAxis.length)
+			return;
+		
+		if(this._startTimestamp == -1) {
+			this._startTimestamp = timestamp;
+			xAxis.find("tspan").each(function (i) {
+				var time = new Date(timestamp - self._style.timeSpan * 1000 * (2 - i) / 2);
+				$(this).text(time.toLocaleTimeString());
+			});
+		}
+		
+		var pxToMsRatio = 500 / this._style.timeSpan / 1000;	//[px/ms]
+		var dt = timestamp - this._startTimestamp;
+		
+		xAxis.find("tspan").each(function (i) {
+			var x = self._xAxisStart - (dt * pxToMsRatio) % 750 + i * 250;
+			if(x < self._xAxisStart) {
+				x += 750;
+				$(this).hide();
+			}
+			
+			if(x < self._xAxisStart + 500)
+				$(this).show();
+			else {
+				var prevTime = Date.parse("01 Jan 1970 " + xAxis.find("tspan").eq(i - 1).text());
+				var time = new Date(prevTime + self._style.timeSpan * 1000 / 2);
+				$(this).text(time.toLocaleTimeString());
+			}
+			
+			$(this).attr("x", x);
+		});
+		
+		var gridY = this._wrapper.find(".grid-y");
+		gridY.find("path").each(function (i) {
+			var x = -(dt * pxToMsRatio) % 500 + i * 100;
+			if(x < 0) {
+				x += 500;
+				$(this).hide();
+			}
+			
+			if(x < 500)
+				$(this).show();
+			
+			var d = $(this).attr("d").split(" ");
+			d = "m" + x + " " + d[1];
+			$(this).attr("d", d);
+		});
+	}
+}
+
+/**
+ * Kontrolka wykresu
+ *
+ * Służy do prezentacji wykresu na obszarze wykresu
+ */
+class Trend extends Control {
+	constructor(variable, address) {
+		super(variable, address);
+		this._chart = null;
+		this._prevTimestamp = -1;
+		this._svgPath = "svg/trend.svg";
+		this._style.color = "#ff0000";
+	}
+	
+	set chart(_chart) {
+		this._chart = _chart;
+	}
+	
+	update() {
+		this._interval = this._chart._interval;
+		super.update();
+	}
+	
+	updateStyle() {
+		var trendSvg = this._wrapper.find("svg");
+		var chartSvg = this._chart._wrapper.find("svg");
+
+
+		if(!chartSvg.length)
+			return;
+
+		var chartRect = chartSvg.find(".chart");
+		
+		var widthScale = chartSvg.width() / chartSvg.attr("width");
+		var heightScale = chartSvg.height() / chartSvg.attr("height");
+		
+		var trendWidth = widthScale * chartRect.width();
+		var trendHeight = heightScale * chartRect.height();
+		
+		this._style.dimensions.width = trendWidth;
+		this._style.dimensions.height = trendHeight;
+		this._style.position.left = this._chart._style.position.left + widthScale * chartRect.attr("x");
+		this._style.position.top = this._chart._style.position.top + heightScale * chartRect.attr("y");
+		super.updateStyle();
+		
+		trendSvg.find("path").attr("stroke", this._style.color);
+	}
+	
+	draw(parent) {
+		super.draw(parent);
+	}
+	
+	onUpdateIndication() {
+		var trend = this._wrapper.find("path");
+		
+		if(!trend.length)
+			return;
+		
+		var points = trend.attr("d").substr(1).split(" ");
+		
+		var pxToMsRatio = 500 / this._chart.style.timeSpan / 1000;	//[px/ms]
+		var timestamp = Date.now() //[ms]
+		
+		if(this._prevTimestamp == -1)
+			this._prevTimestamp = timestamp;
+			
+		var dt = timestamp - this._prevTimestamp;
+		this._prevTimestamp = timestamp;
+		
+		for(var i = 0; i < points.length - 1; i += 2)
+			points[i] -= dt * pxToMsRatio;
+		
+		var range = this._chart._style.values.max - this._chart._style.values.min;
+		var scale = 500 / range;
+		
+		var y = 500 - (this._value - this._chart._style.values.min) * scale;
+		
+		points.push("500 " + y);
+		
+		for(var i = 0; i < points.length; i += 2) {
+			if(points[i] >= 0 && i >= 4) {
+				points = points.slice(i - 4);
+				break;
+			}
+		}
+		
+		points = "M" + points.join(" ");
+		trend.attr("d", points);
+		
+		this._chart.onChartUpdated(this, timestamp);
 	}
 }

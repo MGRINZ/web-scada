@@ -1,0 +1,26 @@
+<svg width="575" height="575" preserveAspectRatio="none" version="1.1" viewBox="0 0 575 575" xmlns="http://www.w3.org/2000/svg">
+ <rect class="chart" x="36.223" y="54.758" width="500" height="500" fill="#fff" stroke="#000" stroke-linecap="square" stroke-width="1.8898"/>
+ <g class="grid-y" transform="translate(36.223 54.758)" fill="none" stroke="#000" stroke-width=".2">
+  <path d="m100 500v-500"/>
+  <path d="m200 500v-500"/>
+  <path d="m300 500v-500"/>
+  <path d="m400 500v-500"/>
+  <path d="m500 500v-500"/>
+ </g>
+ <g class="grid-x" transform="translate(36.223 54.758)" fill="none" stroke="#000" stroke-width=".2">
+  <path d="m0 400h500"/>
+  <path d="m0 300h500"/>
+  <path d="m0 200h500"/>
+  <path d="m0 100h500"/>
+ </g>
+ <g class="y-axis" fill="#000000" font-family="sans-serif" font-size="16px" letter-spacing="0px" text-anchor="end" word-spacing="0px">
+  <text class="min" x="29.514793" y="560.57031" text-align="end" style="line-height:1.25" xml:space="preserve"><tspan x="29.514793" y="560.57031">0</tspan></text>
+  <text class="middle" x="29.514793" y="310.57031" text-align="end" style="line-height:1.25" xml:space="preserve"><tspan x="29.514793" y="310.57031">50</tspan></text>
+  <text class="max" x="29.514793" y="60.570312" text-align="end" style="line-height:1.25" xml:space="preserve"><tspan x="29.514793" y="60.570312">100</tspan></text>
+ </g>
+ <g class="x-axis" fill="#000000" font-family="sans-serif" font-size="16px" letter-spacing="0px" text-anchor="middle" word-spacing="0px">
+  <text x="35.671875" y="574.75781" text-align="center" style="line-height:1.25" xml:space="preserve"><tspan x="35.671875" y="574.75781">11:59:30</tspan></text>
+  <text x="285.67188" y="574.75781" text-align="center" style="line-height:1.25" xml:space="preserve"><tspan x="285.67188" y="574.75781">11:59:45</tspan></text>
+  <text x="535.67188" y="574.75781" text-align="center" style="line-height:1.25" xml:space="preserve"><tspan x="535.67188" y="574.75781">12:00:00</tspan></text>
+ </g>
+</svg>
