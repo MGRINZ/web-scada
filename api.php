@@ -3,7 +3,7 @@ require "db.php";
 require "doc.php";
 
 if(empty($_GET["action"]))
-	die();
+	doc("api");
 
 $action = $_GET["action"];
 
@@ -19,7 +19,7 @@ switch($action)
 		action_query();
 		break;
 	default:
-		die();
+		doc("api");
 }
 
 function action_read()
