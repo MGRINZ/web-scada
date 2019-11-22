@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title></title>
+		<title>WebSCADA Interfejs użytkownika</title>
 		<script src="scripts/jquery-3.4.1.min.js"></script>
 		<script src="scripts/controls.js"></script>
 		<script src="scripts/script.js"></script>
